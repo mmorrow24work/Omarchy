@@ -27,13 +27,21 @@ If you hit boot issues after installation, double-check the disk was partitioned
 
 > Hyper-V fails to start VM saying : Start PXE over IPv4
 
-> mickm@ubuntu24-gemini:/mnt/c/Users/306270/local storage/BIG files/ISO$ sha256sum omarchy-4.0.2.iso
+That message means Hyper-V couldn't find a bootable device in the boot order and fell through to network boot (PXE) as the last resort. It's not actually trying to PXE-boot on purpose — it's telling you nothing else in the boot chain worked.
+
+The official release for v4.0.2 only publishes a SHA256 checksum. 
+
+- Official SHA256 (from the GitHub release): 2ef8e624aa1bec7e277e28056b8535a6c9373ba48d7ede3f1a01cb6d2373cfb8
+
+```
+mickm@ubuntu24-gemini:/mnt/c/Users/306270/local storage/BIG files/ISO$ sha256sum omarchy-4.0.2.iso
 2ef8e624aa1bec7e277e28056b8535a6c9373ba48d7ede3f1a01cb6d2373cfb8  omarchy-4.0.2.iso
 mickm@ubuntu24-gemini:/mnt/c/Users/306270/local storage/BIG files/ISO$
-
-... then I switched to using Gen 1 VM in Hyper-V and that seems to be the solution.
+```
 
 That checksum matches exactly — your ISO is genuine and not corrupted, so that rules out a bad download as the cause of the earlier PXE boot issue.
+
+> I switched to using Gen 1 VM in Hyper-V and that seems to be the solution.
 
 Interesting that Gen 1 fixed it. That actually makes sense in hindsight for a WSL2/Hyper-V setup like yours — a few likely reasons Gen 2 was failing:
 
