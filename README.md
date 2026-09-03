@@ -50,3 +50,23 @@ Interesting that Gen 1 fixed it. That actually makes sense in hindsight for a WS
 - **Boot order state** – Gen 1's simpler boot order (floppy/CD/IDE/network) is less finicky than Gen 2's UEFI boot entries, which can get out of sync if the VM was created and reconfigured a few times.
 
 Good outcome either way. Only trade-off to keep in mind with Gen 1: you're on legacy BIOS/MBR now, and disk will be capped at 2TB and boot slightly slower than Gen 2 would — but for a lab/desktop VM that's rarely going to matter.
+
+> Hyper-V install took 13 mins ... is that normal ?
+
+Yes, that's normal — actually on the faster side for a Gen 1 VM.
+
+A few things affect Omarchy install time:
+
+- **Gen 1 uses emulated IDE, not synthetic drivers** — this is the big one for you. Since you switched from Gen 2 to Gen 1 to fix the boot issue, you lost Hyper-V's synthetic (VMBus) disk and network drivers. Gen 1 falls back to legacy emulated IDE controllers, which are noticeably slower for disk I/O — this alone can turn a 5-minute install into 10-15 minutes.
+- **Host disk speed** — you're installing from an ISO sitting on `/mnt/c/...` (Windows filesystem via WSL2 path), so there's a layer of translation happening. If the underlying disk is HDD rather than NVMe/SSD, that adds real time.
+- **Recent Omarchy releases have optimized for speed** — the 3.8.3 changelog specifically called out installs shrinking the ISO and speeding up installation by +30%, with sub-minute installs possible on fast NVMe setups. That's the best-case scenario though, and it assumes synthetic/virtio-class drivers, not legacy IDE emulation.
+
+So 13 minutes on Gen 1 with emulated IDE lines up with expectations — you're trading some install/runtime speed for the boot reliability. If install speed becomes annoying (e.g., you're reinstalling often for testing), one option is to try Gen 2 again but explicitly force the ISO onto the SCSI controller and double check boot order via PowerShell, which was likely the actual root cause of your original PXE issue rather than Gen 2 itself. But if Gen 1 is working and you're not reinstalling repeatedly, no need to touch it.
+
+> Tried to fix resolution in Hyper-V viewer ... gave up after spending too much time messing around.
+
+## Display lessons 
+
+- Don't use MremoteNG because it's VNC support is out of date - use TigerVNC or RealVNC viewers instead
+- Used wayvnc on omarchy because of xorg support ???
+- Omarchy doesn't ship vi/nano, append via heredoc rather than opening an editor.
