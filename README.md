@@ -26,3 +26,19 @@ Quick setup checklist:
 If you hit boot issues after installation, double-check the disk was partitioned as GPT (default for UEFI installs) — Gen 2 won't boot an MBR disk.
 
 > Hyper-V fails to start VM saying : Start PXE over IPv4
+
+> mickm@ubuntu24-gemini:/mnt/c/Users/306270/local storage/BIG files/ISO$ sha256sum omarchy-4.0.2.iso
+2ef8e624aa1bec7e277e28056b8535a6c9373ba48d7ede3f1a01cb6d2373cfb8  omarchy-4.0.2.iso
+mickm@ubuntu24-gemini:/mnt/c/Users/306270/local storage/BIG files/ISO$
+
+... then I switched to using Gen 1 VM in Hyper-V and that seems to be the solution.
+
+That checksum matches exactly — your ISO is genuine and not corrupted, so that rules out a bad download as the cause of the earlier PXE boot issue.
+
+Interesting that Gen 1 fixed it. That actually makes sense in hindsight for a WSL2/Hyper-V setup like yours — a few likely reasons Gen 2 was failing:
+
+- **DVD drive controller mismatch** – if the ISO got attached to an IDE controller instead of SCSI (easy to do by habit, since Gen 1 defaults to IDE), a Gen 2 VM won't boot it at all and falls through to PXE. Gen 1 just uses IDE natively, so it worked without needing to think about it.
+- **Secure Boot/firmware quirks** – some Hyper-V builds still have inconsistent UEFI firmware behavior with certain Linux ISOs, especially ones like Omarchy's Arch-based installer that don't ship Secure Boot signed bootloaders. Gen 1's legacy BIOS path sidesteps that whole layer.
+- **Boot order state** – Gen 1's simpler boot order (floppy/CD/IDE/network) is less finicky than Gen 2's UEFI boot entries, which can get out of sync if the VM was created and reconfigured a few times.
+
+Good outcome either way. Only trade-off to keep in mind with Gen 1: you're on legacy BIOS/MBR now, and disk will be capped at 2TB and boot slightly slower than Gen 2 would — but for a lab/desktop VM that's rarely going to matter.
