@@ -24,3 +24,5 @@ Quick setup checklist:
 5. If you plan to use it as a desktop with GPU accel, note Hyper-V's synthetic GPU (RemoteFX successor) support is limited — enhanced session mode over RDP is usually the smoother path for a Wayland compositor like Hyprland rather than the Basic Session VMConnect console.
 
 If you hit boot issues after installation, double-check the disk was partitioned as GPT (default for UEFI installs) — Gen 2 won't boot an MBR disk.
+
+> Hyper-V fails to start VM saying : Start PXE over IPv4
